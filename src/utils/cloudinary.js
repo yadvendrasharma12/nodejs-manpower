@@ -18,9 +18,12 @@ export const uploadOnCloudinary = async (buffer) => {
       const stream = cloudinary.uploader.upload_stream(
         {
           resource_type: "image",
-          folder: "users/profile",
+         folder: "Manpower/images",
         },
-        (error, result) => {
+
+        (
+          error, result
+        ) => {
           if (error) {
             reject(error);
           } else {

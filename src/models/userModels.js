@@ -42,10 +42,10 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
 
-    isPhoneVerified: {
-      type: Boolean,
-      default: false,
-    },
+    // isPhoneVerified: {
+    //   type: Boolean,
+    //   default: false,
+    // },
 
     profilePic: {
       type: String,
