@@ -1,5 +1,4 @@
-import { email, z } from "zod";
-
+import { z } from "zod";
 
 export const registerSchema = z.object({
   email: z
@@ -33,9 +32,21 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  email: z.string().trim().email("Invalid email address").optional(),
-  name: z.string().trim().min(2, "Invalid name").optional(),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z
+    .string()
+    .trim()
+    .email("Invalid email address")
+    .optional(),
+
+  name: z
+    .string()
+    .trim()
+    .min(2, "Invalid name")
+    .optional(),
+
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters"),
 }).refine(
   (data) => data.email || data.name,
   {
@@ -43,3 +54,37 @@ export const loginSchema = z.object({
     path: ["email"],
   }
 );
+
+export const updateProfileSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name is too long")
+    .optional(),
+
+  email: z
+    .string()
+    .trim()
+    .email("Invalid email")
+    .optional(),
+
+  phone: z
+    .string()
+    .trim()
+    .regex(/^[6-9]\d{9}$/, "Invalid phone number")
+    .optional(),
+
+  gender: z
+    .enum(["Male", "Female", "Other"], {
+      error: "Gender must be Male, Female or Other",
+    })
+    .optional(),
+
+  dateOfBirth: z
+    .coerce
+    .date({
+      error: "Invalid date of birth",
+    })
+    .optional(),
+});

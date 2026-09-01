@@ -8,7 +8,7 @@ export const authenticationMiddleware = (req, res, next) => {
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Authentication required",
+        message: "Required authentication token",
       });
     }
 
@@ -35,9 +35,9 @@ export const authenticationMiddleware = (req, res, next) => {
       });
     }
 
-    return res.status(500).json({
+    return res.status(404).json({
       success: false,
-      message: "Internal server error",
+      message: "Invalid authentication token",
     });
   }
 };

@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 
 import { errorMiddleware } from "./middleware/errorMiddleware.js";
 import userRoutes from "./routes/userRoutes.js";
+import profileRouter from "./routes/profileRoutes.js"
 const app = express();
 
 
@@ -21,6 +22,7 @@ app.use(cors({
 ));
 
 app.use("/api/v1/auth", userRoutes);
+app.use("/api/v1/profile",profileRouter)
 
 
 app.use(errorMiddleware);
