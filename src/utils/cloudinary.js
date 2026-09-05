@@ -46,19 +46,3 @@ export const uploadOnCloudinary = async (buffer) => {
   }
 };
 
-
-
-
-
-
-/*
-{
-  "message": "Server returned unexpected status code - 403",
-  "http_code": 403,
-  "name": "UnexpectedResponse"
-}
-
-Age ye error aye to. cloudnary me uplded seacury me jake 
-Restricted image types: uploded enable hona chiaye
-
-*/

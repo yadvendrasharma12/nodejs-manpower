@@ -13,6 +13,6 @@ router.patch("/update-profile",authenticationMiddleware,upload.single("profilePi
   updateProfileController
 );
 
-router.delete('/delete-profile',authenticationMiddleware,deleteProfileController)
+router.post("/delete-profile",authenticationMiddleware,deleteProfileController)
 
 export default router

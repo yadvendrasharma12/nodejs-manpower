@@ -14,7 +14,11 @@ export const env = {
   Cloudinary_Api_Key:process.env.CLOUDINARY_API_KEY,
   Cloudinary_Api_Secret:process.env.CLOUDINARY_API_SECRET,
   Email_User:process.env.EMAIL_USER,
-  Email_Password:process.env.EMAIL_PASSWORD
+  Email_Password:process.env.EMAIL_PASSWORD,
+  Admin_Email:process.env.ADMIN_EMAIL,
+  Admin_Password:process.env.ADMIN_PASSWORD,
+  Admin_Phone: process.env.ADMIN_PHONE,
+
 
 
 

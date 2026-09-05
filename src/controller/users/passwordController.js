@@ -3,6 +3,8 @@ import User from "../../models/userModels.js";
 import { generateOtp } from "../../utils/generateOtp.js";
 import { hashPassword } from "../../utils/hashPassword.js";
 import { sendOtpEmail } from "../../utils/email.js";
+import bcrypt from "bcrypt";
+
 
 
 export const forgetSendOtpController = asyncHandler(async (req, res) => {
@@ -13,7 +15,7 @@ export const forgetSendOtpController = asyncHandler(async (req, res) => {
   if (!user) {
     return res.status(404).json({
       success: false,
-      message: "User does't exist",
+      message: "User does not exist",
     });
   }
 
@@ -24,9 +26,7 @@ export const forgetSendOtpController = asyncHandler(async (req, res) => {
 
   await user.save();
 
-  // OTP email par send
-  // await sendOtpEmail(email, otp);
-  await sendOtpEmail(email,otp)
+  await sendOtpEmail(email, otp);
 
   return res.status(200).json({
     success: true,
@@ -35,10 +35,25 @@ export const forgetSendOtpController = asyncHandler(async (req, res) => {
 });
 
 
+// ==================== VERIFY OTP ====================
+
 export const verifyOtpController = asyncHandler(async (req, res) => {
-  const { email, otp } = req.body;
+  const email = req.body.email?.trim().toLowerCase();
+  const otp = req.body.otp?.trim();
+
+  console.log("EMAIL:", email);
+  console.log("OTP:", otp);
+
+  if (!email || !otp) {
+    return res.status(400).json({
+      success: false,
+      message: "Email and OTP are required",
+    });
+  }
 
   const user = await User.findOne({ email });
+
+  console.log("USER:", user);
 
   if (!user) {
     return res.status(404).json({
@@ -63,14 +78,14 @@ export const verifyOtpController = asyncHandler(async (req, res) => {
   }
 
   // Check OTP
-  if (user.otp !== otp) {
+  if (user.otp?.toString() !== otp) {
     return res.status(400).json({
       success: false,
       message: "Invalid OTP",
     });
   }
 
-  // OTP verified → remove OTP from DB
+  // OTP remove
   await User.findByIdAndUpdate(user._id, {
     $unset: {
       otp: 1,
@@ -107,5 +122,48 @@ export const resetPasswordController = asyncHandler(async (req, res) => {
   return res.status(200).json({
     success: true,
     message: "Password reset successfully",
+  });
+});
+
+
+// ==================== CHANGE PASSWORD ====================
+
+export const changePasswordController = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  // Logged-in user ko ID se find karo
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  // Old password verify karo
+  const isPasswordCorrect = await comparePassword(
+    oldPassword,
+    user.password
+  );
+
+  if (!isPasswordCorrect) {
+    return res.status(400).json({
+      success: false,
+      message: "Incorrect old password",
+    });
+  }
+
+  // New password ko hash karo
+  const hashedPassword = await hashPassword(newPassword);
+
+  // Password update karo
+  user.password = hashedPassword;
+
+  await user.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Password changed successfully",
   });
 });

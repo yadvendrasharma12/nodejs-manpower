@@ -88,3 +88,36 @@ export const updateProfileSchema = z.object({
     })
     .optional(),
 });
+
+
+
+export const forgetemailSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Invalid email"),
+});
+
+export const ForgetOtpSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("Invalid email"),
+
+  otp: z
+    .string()
+    .trim()
+    .length(6, "OTP must be 6 digits")
+    .regex(/^\d+$/, "OTP must contain only numbers"),
+});
+
+
+export const ResetPasswordSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("Invalid email"),
+
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters"),
+});

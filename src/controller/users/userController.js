@@ -8,6 +8,8 @@ import { uploadOnCloudinary } from "../../utils/cloudinary.js";
 import { generateAccessToken, generateRefreshToken } from "../../utils/generateToken.js";
 import { setAccessTokenCookie, setRefreshTokenCookie } from "../../utils/cookie.js";
 import { env } from "../../config/env.js";
+import { success } from "zod";
+import mongoose from "mongoose";
 
 
 export const registerController = asyncHandler(async (req, res) => {
@@ -35,7 +37,7 @@ export const registerController = asyncHandler(async (req, res) => {
     }
   }
 
-  // Profile picture
+  
   let profilePic = "";
 
   if (req.file) {
@@ -151,52 +153,128 @@ export const logOutController = asyncHandler(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "Logout successful",
+    message: "Logout successfully",
   });
 });
 
-// export const refreshTokenController = asyncHandler(async (req, res) => {
 
-//   const refreshToken = req.cookies.refreshToken;
+export const getAllUsersController = asyncHandler(async (req, res) => {
 
-//   if (!refreshToken) {
-//     return res.status(401).json({
-//       success: false,
-//       message: "Refresh token required",
-//     });
+  const allUsers = await User.find({ role: "user" })
+    .select("-password -refreshToken -createdAt -updatedAt -__v")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  if (allUsers.length === 0) {
+    return res.status(200).json({
+      success: false,
+      message: "Users not found",
+      users: []
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Users fetched successfully",
+    totalCount:allUsers.length,
+    users: allUsers
+  });
+
+});
+
+
+// export const updateAllUsersController = asyncHandler(async(req,res)=>{
+
+//   const {id} = req.body;
+// const updateUser = await User.findByIdAndUpdate(id,
+//   req.body,
+//   {
+//     new:true,
+//     runValidators:true
 //   }
+// ).select("-password -refreshToken -createdAt -updatedAt -__v").lean();
 
-//   try {
+// if(!updateUser){
+//   return res.status(404).json({
+//     success:false,
+//     message:"User not found"
+//   });
+// }
 
-//     const decoded = jwt.verify(
-//       refreshToken,
-//       env.Refresh_token
-//     );
+// return res.status(200).json({
 
-//     const user = await User.findById(decoded.id);
+//   success:true,
+//   message:'User updated successfully'
+// })
 
-//     if (!user) {
-//       return res.status(401).json({
-//         success: false,
-//         message: "User not found",
-//       });
-//     }
 
-//     const newAccessToken = generateAccessToken(user);
+   
 
-//     setAccessTokenCookie(res, newAccessToken);
 
-//     return res.status(200).json({
-//       success: true,
-//       message: "Access token refreshed",
-//     });
 
-//   } catch (error) {
+// })
 
-//     return res.status(401).json({
-//       success: false,
-//       message: "Refresh token expired or invalid",
-//     });
 
-//   }
-// });
+export const updateAllUsersController = asyncHandler(async (req, res) => {
+
+  const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid user ID",
+    });
+  }
+
+  const {name, email, phone,gender, dateOfBirth, role, status, profilePic} = req.body;
+
+  const updateUser = await User.findByIdAndUpdate(
+  id,
+    {
+      name,email, phone,gender, dateOfBirth,role, status, profilePic,
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  ).select("-password -refreshToken -createdAt -updatedAt -__v").lean();
+
+  if (!updateUser) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "User updated successfully",
+    user: updateUser,
+  });
+});
+
+
+
+export const deleteUsersController = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid User ID",
+    });
+  }
+
+  const deleteUser = await User.findByIdAndDelete(id);
+
+  if (!deleteUser) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "User deleted successfully",
+  });
+});
